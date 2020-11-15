@@ -1,4 +1,4 @@
-package utils
+package dist
 
 import (
 	"golang.org/x/exp/rand"

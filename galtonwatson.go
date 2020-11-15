@@ -1,10 +1,10 @@
 package galtonwatson
 
 import (
-	ntree "github.com/blazingorb/ntreego"
 	"golang.org/x/exp/rand"
 
-	"github.com/tommyreddad/galtonwatson/utils"
+	"github.com/tommyreddad/galtonwatson/stat/dist"
+	"github.com/tommyreddad/galtonwatson/tree"
 )
 
 // GaltonWatson implements a conditioned Galton-Watson tree generator. The
@@ -23,8 +23,8 @@ type GaltonWatson struct {
 
 // Rand returns a random sample drawn from the distribution. The generation
 // algorithm is due to Devroye (2011), see: http://luc.devroye.org/gw-simulation.pdf.
-func (gw GaltonWatson) Rand() *ntree.Node {
-	M := utils.Multinomial{
+func (gw GaltonWatson) Rand() *tree.Node {
+	M := dist.Multinomial{
 		N:    gw.N,
 		Prob: gw.Prob,
 		Src:  gw.Src,
@@ -71,24 +71,23 @@ func (gw GaltonWatson) Rand() *ntree.Node {
 	Xi = append(Xi[minIndex:n], Xi[0:minIndex]...)
 
 	// Build the tree using the correct Xi in DFS order.
-	rootNode := ntree.New(0)
+	rootNode := tree.New(0)
 	{
 		nodeCount := 0
 		traversalCount := 0
 		currNode := rootNode
-		dfsStack := []*ntree.Node{currNode}
+		dfsStack := []*tree.Node{currNode}
 		for len(dfsStack) > 0 {
 			currNode = dfsStack[len(dfsStack)-1]
 			dfsStack = dfsStack[:len(dfsStack)-1]
 			for i := uint32(0); i < Xi[traversalCount]; i++ {
 				nodeCount++
-				newNode := ntree.New(nodeCount)
-				ntree.AppendChild(currNode, newNode)
+				newNode := tree.New(nodeCount)
+				currNode.AppendChild(newNode)
 				dfsStack = append(dfsStack, newNode)
 			}
 			traversalCount++
 		}
 	}
-
 	return rootNode
 }
