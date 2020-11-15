@@ -21,24 +21,7 @@ import "github.com/tommyreddad/galtonwatson"
 
 func main() {
     // Generates a uniformly random binary tree of size 100.
-    T := galtonwatson.GaltonWatson{
-        N: 100,
-        Prob: func (i float64) float64 {
-            if i == 0 {
-                // 0 children with probability 1/4
-                return 0.25
-            }
-            if i == 1 {
-                // 1 child with probability 1/2
-                return 0.5
-            }
-            if i == 2 {
-                // 2 children with probability 1/4
-                return 0.25
-            }
-            return 0.0
-        },
-    }
+    T := galtonwatson.NewGaltonWatson(100, []float64{0.25, 0.5, 0.25}, rand.NewSource(1))
     T.Rand()
 }
 ```
