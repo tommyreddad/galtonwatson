@@ -1,5 +1,7 @@
 # galtonwatson
 
+**[This module is under early development and should not be used by anyone at this time.]**
+
 **galtonwatson** is a Go module containing efficient algorithms for generating (conditioned) Galton-Watson trees and computing some of their properties. By implication, this module can be used to generate uniformly random samples from many classes of trees, including:
 - uniformly random binary trees of a given size,
 - uniformly random *d*-ary trees of a given size,
