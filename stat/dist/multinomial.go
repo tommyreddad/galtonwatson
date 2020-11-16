@@ -29,7 +29,7 @@ type Multinomial struct {
 // Rand returns a random sample drawn from the distribution. The return format
 // is a map. The (key, value) pair present in the map indicates `value` number
 // of samples drawn from the `key` category.
-func (m *Multinomial) Rand() map[uint32]float64 {
+func (m *Multinomial) Rand() map[uint32]uint32 {
 	// A multinomial sample N_1, N_2, ... with n trials and event probabilities
 	// p_1, p_2, ..., can be generated using a binomial source, using the fact that
 	//   N_1 ~ Binomial(n, p_1) .
@@ -41,7 +41,7 @@ func (m *Multinomial) Rand() map[uint32]float64 {
 	n := float64(m.N)
 	currIndex := uint32(0)
 	cumulative := float64(1.0)
-	sample := make(map[uint32]float64)
+	sample := make(map[uint32]uint32)
 	for n > 0 {
 		next := distuv.Binomial{
 			N:   n,
@@ -49,7 +49,7 @@ func (m *Multinomial) Rand() map[uint32]float64 {
 			Src: m.Src,
 		}
 		if binom := next.Rand(); binom > 0 {
-			sample[currIndex] = binom
+			sample[currIndex] = uint32(binom)
 			n = n - binom
 		}
 		cumulative = cumulative - m.CategoryProb[currIndex]
@@ -58,14 +58,21 @@ func (m *Multinomial) Rand() map[uint32]float64 {
 	return sample
 }
 
-// TODO: Implement LogProb.
 // LogProb computes the natural logarithm of the value of the probability mass function at `x`.
-func (m *Multinomial) LogProb(x []float64) float64 {
-	return 0.0
+func (m *Multinomial) LogProb(x []uint32) float64 {
+	total := float64(0.0)
+	for i := 0; i < len(x); i++ {
+		total += float64(x[i]) * math.Log(m.CategoryProb[i])
+		total += math.Log(float64(i + 1))
+		for j := uint32(1); j < x[i]; j++ {
+			total -= math.Log(float64(j + 1))
+		}
+	}
+	return total
 }
 
 // Prob computes the value of the probability mass function at `x`.
-func (m *Multinomial) Prob(x []float64) float64 {
+func (m *Multinomial) Prob(x []uint32) float64 {
 	return math.Exp(m.LogProb(x))
 }
 

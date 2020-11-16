@@ -87,12 +87,12 @@ func (gw *GaltonWatson) generateXiFromRander(rander distuv.Rander) []uint32 {
 // variable.
 func (gw *GaltonWatson) generateXiFromMultinomial(m *dist.Multinomial) []uint32 {
 	// Generate multinomial conditionally upon the total sum being n-1, by the rejection method.
-	var mCond map[uint32]float64
+	var mCond map[uint32]uint32
 	for total := uint32(0); total != gw.n-1; {
 		mCond = m.Rand()
 		total = 0
 		for k, v := range mCond {
-			total += k * uint32(v)
+			total += k * v
 		}
 	}
 
@@ -101,8 +101,8 @@ func (gw *GaltonWatson) generateXiFromMultinomial(m *dist.Multinomial) []uint32 
 	{
 		i := 0
 		for k, v := range mCond {
-			for j := uint32(0); j < uint32(v); j++ {
-				Xi[i] = uint32(k)
+			for j := uint32(0); j < v; j++ {
+				Xi[i] = k
 				i++
 			}
 		}
