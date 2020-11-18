@@ -29,7 +29,7 @@ type Multinomial struct {
 // Rand returns a random sample drawn from the distribution. The return format
 // is a map. The (key, value) pair present in the map indicates `value` number
 // of samples drawn from the `key` category.
-func (m *Multinomial) Rand() map[uint32]uint32 {
+func (m Multinomial) Rand() map[uint32]uint32 {
 	// A multinomial sample N_1, N_2, ... with n trials and event probabilities
 	// p_1, p_2, ..., can be generated using a binomial source, using the fact that
 	//   N_1 ~ Binomial(n, p_1) .
@@ -59,7 +59,7 @@ func (m *Multinomial) Rand() map[uint32]uint32 {
 }
 
 // LogProb computes the natural logarithm of the value of the probability mass function at `x`.
-func (m *Multinomial) LogProb(x []uint32) float64 {
+func (m Multinomial) LogProb(x []uint32) float64 {
 	total := float64(0.0)
 	for i := 0; i < len(x); i++ {
 		total += float64(x[i]) * math.Log(m.CategoryProb[i])
@@ -72,12 +72,12 @@ func (m *Multinomial) LogProb(x []uint32) float64 {
 }
 
 // Prob computes the value of the probability mass function at `x`.
-func (m *Multinomial) Prob(x []uint32) float64 {
+func (m Multinomial) Prob(x []uint32) float64 {
 	return math.Exp(m.LogProb(x))
 }
 
 // Mean returns the mean vector of the distribution.
-func (m *Multinomial) Mean() []float64 {
+func (m Multinomial) Mean() []float64 {
 	x := make([]float64, len(m.CategoryProb))
 	copy(x, m.CategoryProb)
 	floats.Scale(float64(m.N), x)
@@ -86,6 +86,6 @@ func (m *Multinomial) Mean() []float64 {
 
 // TODO: Implement CovarianceMatrix.
 // CovarianceMatrix returns the covariance matrix of the distribution.
-func (m *Multinomial) CovarianceMatrix(dst *mat.SymDense) {
+func (m Multinomial) CovarianceMatrix(dst *mat.SymDense) {
 	return
 }
