@@ -1,6 +1,8 @@
 package galtonwatson
 
 import (
+	"sort"
+
 	"golang.org/x/exp/rand"
 	"gonum.org/v1/gonum/stat/distuv"
 
@@ -66,8 +68,18 @@ func (gw *GaltonWatson) generateXiFromRander(rander distuv.Rander) []uint32 {
 			u := uint32(distuv.UnitUniform.Rand() * float64(gw.n))
 			Xi[u]++
 		}
-	// TODO: implement conditional geometric generator
-	// case dist.Geometric:
+	case *dist.Geometric:
+		// The conditional geometric distribution here is distributed uniformly
+		// on the discrete simplex (k_1, ..., k_n) such that k_1 + ... + k_n = n - 1.
+		spaces := make([]int, gw.n)
+		for i := uint32(0); i < gw.n-1; i++ {
+			spaces[i] = int(distuv.UnitUniform.Rand() * float64(gw.n))
+		}
+		// TODO: implement radix sort to make this linear time
+		sort.Ints(spaces)
+		for i := uint32(0); i < gw.n-1; i++ {
+			Xi[i] = uint32(spaces[i+1] - spaces[i])
+		}
 	default:
 		// Default to rejection method. This is the slowest and most naive option.
 		for total := uint32(0); total != gw.n-1; {
