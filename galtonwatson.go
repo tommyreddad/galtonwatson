@@ -71,13 +71,21 @@ func (gw *GaltonWatson) generateXiFromRander(rander distuv.Rander) []uint32 {
 	case *dist.Geometric:
 		// The conditional geometric distribution here is distributed uniformly
 		// on the discrete simplex (k_1, ..., k_n) such that k_1 + ... + k_n = n - 1.
-		spaces := make([]int, gw.n)
+		spaces := make([]int, gw.n+1)
+		// Place n-1 spacers in the n spaces between and on either end of the integers 1, 2, ..., n-1.
+		// The consecutive spaces represent the offspring count.
+		// e.g., for n=4,
+		//   1 || 2 3 |
+		// This spacing corresponds to
+		//   Xi[0] = 1, Xi[2] = 0, Xi[3] = 2, Xi[4] = 0
 		for i := uint32(0); i < gw.n-1; i++ {
 			spaces[i] = int(distuv.UnitUniform.Rand() * float64(gw.n))
 		}
-		// TODO: implement radix sort to make this linear time
+		// Add some extra spaces on the ends for convenience.
+		spaces[gw.n-1] = 0
+		spaces[gw.n] = int(gw.n - 1)
 		sort.Ints(spaces)
-		for i := uint32(0); i < gw.n-1; i++ {
+		for i := uint32(0); i < gw.n; i++ {
 			Xi[i] = uint32(spaces[i+1] - spaces[i])
 		}
 	default:
